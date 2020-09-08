@@ -1,0 +1,46 @@
+AWS has integrated building blocks that support the development of microservices.
+
+A common approach to reduce operational efforts for deployment is container-based deployment. Container technologies like Docker have increased in popularity in the last few years due to benefits like portability, productivity, and efficiency. The learning curve with containers can be steep and you have to think about security fixes for your Docker images and monitoring. Amazon Elastic Container Service (Amazon ECS) and Amazon Elastic Kubernetes Service (Amazon EKS) eliminate the need to install, operate, and scale your own cluster management infrastructure. With simple API calls, you can launch and stop Docker-enabled applications, query the complete state of your cluster, and access many familiar features like security groups, Load Balancing, Amazon Elastic Block Store (Amazon EBS) volumes, and AWS Identity and Access Management (IAM) roles.
+
+AWS Fargate is a container management service that allows you to run serverless containers so you don’t have worry about provisioning, configuring, and scaling clusters of virtual machines to run containers. With Fargate, you no longer have to worry about provisioning enough compute resources for your container applications. Fargate can launch tens of thousands of containers and easily scale to run your most mission-critical applications.
+
+Amazon ECS supports container placement strategies and constraints to customize how Amazon ECS places and terminates tasks. A task placement constraint is a rule that is considered during task placement. You can associate attributes, essentially key-value pairs, to your container instances and then use a constraint to place tasks based on these attributes. For example, you can use constraints to place certain microservices based on instance type or instance capability, such as GPU-powered instances.
+
+Amazon EKS runs up-to-date versions of the open-source Kubernetes software, so you can use all the existing plugins and tooling from the Kubernetes community. Applications running on Amazon EKS are fully compatible with applications running on any standard Kubernetes environment, whether running in on-premises data centers or public clouds. Amazon EKS integrates IAM with Kubernetes, enabling you to register IAM entities with the native authentication system in Kubernetes. There is no need to manually set up credentials for authenticating with the Kubernetes masters. The IAM integration allows you to use IAM to directly authenticate with the master itself as provide fine granular access to the public endpoint of your Kubernetes masters.
+
+Docker images used in Amazon ECS and Amazon EKS can be stored in Amazon Elastic Container Registry (Amazon ECR.) Amazon ECR eliminates the need to operate and scale the infrastructure required to power your container registry.
+
+Continuous integration and continuous delivery (CI/CD) is a best practice and a vital part of a DevOps initiative that enables rapid software changes while maintaining system stability and security. However, this is out of the scope of this whitepaper, more information can be found in the “Practicing Continuous Integration and Continuous Delivery on AWS” whitepaper.
+
+To create CI/CD Pupeline:
+-----------------------------------
+Set up the build project in AWS CodeBuild, which includes:
+
+•	Create a CodeBuild build project
+•	Select the source
+o	This pattern uses Git for the code repository, so choose Git from the available options.
+•	Select a repository
+o	Select the repository from which you want to build the code.
+•	Select the environment
+o	You can select from a list of managed images or opt for a custom image using Docker. This pattern uses a managed image (Ubuntu).
+•	Choose a service role
+o	You can create a service role or select from a list of existing roles.
+•	Create a buildspec file
+o	You can create a buildspec.yml file and add the configuration, or use the online buildspec editor to configure the changes.
+•	Opt for artifacts
+o	Configure the build project for artifacts, if required.
+•	Configure Amazon CloudWatch logs
+o	Configure the build project Amazon CloudWatch logs, if required. This step is optional but recommended. Charges are applicable.
+•	Opt for Amazon S3 logs
+o	Configure the build project for Amazon Simple Storage Service (Amazon S3) logs, if you want to store the logs.
+
+Configure the pipeline in AWS CodePipeline, which includes
+
+•	Create a pipeline
+•	Select a service role
+•	Opt for an artifact store
+	If you want Amazon S3 to create a bucket and store the artifacts in it, use the default location. Or, select a custom location and specify an existing bucket.
+•	Specify the source provider
+	Choose GitHub from the list of source providers.
+•	Select the repository and branch of the code
+ 
