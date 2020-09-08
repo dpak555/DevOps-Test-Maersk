@@ -1,0 +1,96 @@
+The AWS equivalent of Azure ARM is Cloudformation and Azure key vault is AWS Secrets Manager.
+
+
+1)
+For AWS CloudFormation, artifacts can include a stack template file, a template configuration file, or both. CodePipeline uses these artifacts to work with AWS CloudFormation stacks and change sets.
+
+Stack template file:
+A stack template file defines the resources that AWS CloudFormation provisions and configures. These files are the same template files that you use when you create or update stacks using AWS CloudFormation. You can use YAML or JSON-formatted templates.
+
+Template configuration file:
+A template configuration file is a JSON-formatted text file that can specify template parameter values, a stack policy, and tags. Use these configuration files to specify parameter values or a stack policy for a stack. All of the parameter values that you specify must be declared in the associated template.
+
+To create a configuration file, use the following format :
+
+{
+  "Parameters" : {
+    "NameOfTemplateParameter" : "ValueOfParameter",
+    ...
+  },
+  "Tags" : {
+    "TagKey" : "TagValue",
+    ...
+  }, 
+  "StackPolicy" : {
+    "Statement" : [
+      StackPolicyStatement
+    ]
+  }
+}
+
+
+2)
+CloudFormer is a template creation beta tool that creates an AWS CloudFormation template from existing AWS resources in your account. You select any supported AWS resources that are running in your account, and CloudFormer creates a template in an Amazon S3 bucket.
+
+The following list outlines the basic procedure for using CloudFormer:
+
+•	Create and launch a CloudFormer stack.
+•	CloudFormer is an AWS CloudFormation stack. You run CloudFormer by launching the stack from your AWS environment. It runs on a t2.medium Amazon EC2 instance and requires no other resources.
+•	Use CloudFormer to create a template using your existing AWS resources and save the template to an Amazon S3 bucket.
+•	Delete the CloudFormer stack.
+•	You usually don't need CloudFormer beyond this point, so you can avoid additional charges by deleting the stack.
+•	Use the template to launch a new stack, as needed.
+
+
+3) 
+Steps to create automated deployment pipeline:
+
+Step 1: Create a deployment environment
+Our continuous deployment pipeline will need a target environment containing virtual servers, or Amazon EC2 instances, where it will deploy sample code. We will prepare this environment before creating the pipeline.
+
+Step 2: Get a copy of the sample code
+In this step, we will retrieve a copy of the sample app’s code and choose a source to host the code. The pipeline takes code from the source and then performs actions on it.
+
+We can use one of three options as your source: a GitHub repository, an Amazon S3 bucket, or an AWS CodeCommit repository. Select your preference and follow the steps below:
+
+Step 3: Create your pipeline
+In this step, we will create and configure a simple pipeline with two actions: source and deploy. We will provide CodePipeline with the locations of our source repository and deployment environment.
+
+Step 4: Activate your pipeline to deploy your code
+In this step, you will launch our pipeline. Once our pipeline has been created, it will start to run automatically. First, it detects the sample app code in our source location, bundles up the files, and then move them to the second stage that we defined. During this stage, it passes the code to the EC2 instance that will host your code.
+
+Step 5: Commit a change and then update your app
+In this step, we will revise the code and commit the change to your repository. CodePipeline will detect our updated code and then automatically initiate deploying it to our EC2 instance.
+
+4)
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: mykey
+      ImageId: 'ami-032c2c4b952586f02'
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22’
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+
+5)
+To pass secrets in AWS CloudFormation is by using dynamic references in the stack template. You can see an example of this in the Cloud Application Platform Quick Start, where a password is automatically generated with Secrets Manager, and then the secret values are passed into another nested stack.
+
+Example:
+  MyRDSInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBName: MyRDSInstance
+      AllocatedStorage: '20'
+      DBInstanceClass: db.t2.micro
+      Engine: mysql
+      MasterUsername: '{{resolve:secretsmanager:MyRDSSecret:SecretString:username}}'
+      MasterUserPassword: '{{resolve:secretsmanager:MyRDSSecret:SecretString:password}}'
